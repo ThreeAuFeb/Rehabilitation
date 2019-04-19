@@ -1,6 +1,6 @@
-安装node.js
-安装electron
-下载依赖 npm install
-安装打包工具 npm install electron-packager --save-dev
-项目启动 npm start
-打包 npm run-script packager
+#### 项目简介
+根据示范动作录入用户视频，并处理视频信息。
+#### 知识点
+* 使用OpenCV，视频流转换为图片
+* 转换视频流为MP4格式的视频文件并保存至本地
+#### 效果图
