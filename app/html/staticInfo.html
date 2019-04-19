@@ -1,0 +1,257 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>功能动作视频检测系统</title>
+    <link rel="stylesheet" href="../css/commen.css">
+    <link rel="stylesheet" href="../css/icon.css">
+    <script src="../js/utils.js"></script>
+</head>
+
+<body>
+    <div class="content">
+        <div class="flex head">
+            <div>
+                <p class="title">功能动作视频检测系统</p>
+            </div>
+            <div class="tools flex">
+                <span class="tool flex iconfont icon-setting-1-copy"></span>
+                <span class="help flex iconfont icon-qm"></span>
+                <span id="back" class="help flex" style="font-size: 18px;">后退</span>
+            </div>
+        </div>
+
+        <div class="dtjc">静态检测</div>
+
+        <div class="dzsm">动作说明</div>
+        <div class="box flex">
+            <div class="item flex">
+                <span class="text">步骤一：侧卧在瑜伽垫上，右腿伸直，微微抬起，脚尖朝下;臀部外侧发力将右腿抬至最高点;抬腿时大腿向胯的方向缩，而不是向远处伸</span>
+                <img src="../image/action_01.jpg" alt="加载失败">
+            </div>
+            <div class="item flex">
+                <span class="text">步骤二：自然站立，双手叉腰，双脚微微分开;将一侧腿抬起，外展，再落回站立位；略作停顿后做另一侧腿的外展;第二个循环时将一侧腿保持外展的状态下抬起，内收，再落回站立位；略作停顿后做另一侧腿的内收<br/>控制动作速度，上身保持稳定</span>
+                <img src="../image/action_02.jpg" alt="加载失败">
+            </div>
+            <div class="item flex">
+                <span class="text">步骤三：双脚约两倍肩宽，脚尖朝向斜前方;蹲到大腿平行地面时膝盖要和脚尖方向一致;上半身尽可能挺直，下蹲时臀部稍微向后坐;双手交叉握置于胸口</span>
+                <img src="../image/action_03.jpg" alt="加载失败">
+            </div>
+        </div>
+
+        <div class="ready">准备 <b class="countDown">10</b> </div>
+        <div class="skip">跳过</div>
+    </div>
+</body>
+<script>
+    window.onload = function() {
+        var countDown = document.getElementsByClassName("countDown")
+        var skip = document.querySelector(".skip")
+        if (document.readyState == "complete") {
+            readyTran();
+        }
+
+        function readyTran() {
+            setTimeout(() => {
+                var interval = setInterval(() => {
+                    var count = countDown[0].innerHTML
+                    if (count > 0) {
+                        countDown[0].innerHTML = countDown[0].innerHTML - 1
+                    } else {
+                        clearInterval(interval)
+                        creatWin('../html/staticInspect.html')
+                    }
+                }, 1000)
+            }, 1000);
+        }
+
+        skip.addEventListener("click", function() {
+            creatWin('../html/staticInspect.html')
+        })
+
+        // 后退
+        var back = document.getElementById("back")
+        back.addEventListener("click", function() {
+            creatWin('../html/subHome.html')
+        })
+    }
+</script>
+<style>
+    .skip {
+        border-radius: 100%;
+        background: #00AC73;
+        color: #FFFFFF;
+        line-height: 50px;
+        margin-top: -25px;
+        font-weight: bold;
+        height: 50px;
+        position: relative;
+        float: right;
+        margin-right: 32px;
+        text-align: center;
+        padding: 0 20px;
+        width: 50px;
+        font-size: 24px;
+        cursor: pointer;
+    }
+    
+    .head {
+        justify-content: space-between;
+    }
+    
+    .head p {
+        font-size: 40px;
+        margin: 17px;
+    }
+    
+    .dtjc {
+        background-image: linear-gradient(43deg, #0BD64B 0%, #19ED82 100%);
+        font-size: 36px;
+        color: #FFFFFF;
+        line-height: 43px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+        margin-top: 8px;
+        font-weight: bold;
+        padding-left: 18px;
+        width: 336px;
+        margin-left: 80px;
+        height: 44px;
+        position: relative;
+    }
+    
+    .dtjc:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 22px solid transparent;
+        border-left: 18px solid #19ED82;
+        border-bottom: 22px solid transparent;
+    }
+    
+    .dzsm {
+        background: #4AE99E;
+        font-size: 20px;
+        color: #FFFFFF;
+        line-height: 34px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+        margin-top: 25px;
+        font-weight: bold;
+        /* padding-left: 18px; */
+        width: 220px;
+        margin-left: 80px;
+        height: 34px;
+        position: relative;
+        text-align: center;
+    }
+    
+    .dzsm:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 17px solid transparent;
+        border-left: 12px solid #19ED82;
+        border-bottom: 17px solid transparent;
+    }
+    
+    .ready {
+        background: #00AC73;
+        font-size: 36px;
+        color: #FFFFFF;
+        line-height: 50px;
+        /* text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16); */
+        margin-top: -25px;
+        font-weight: bold;
+        /* padding-left: 18px; */
+        width: 204px;
+        /* margin-left: 80px; */
+        height: 50px;
+        position: relative;
+        float: right;
+        margin-right: 100px;
+        text-align: center;
+    }
+    
+    .ready:before {
+        content: "";
+        position: absolute;
+        right: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 25px solid transparent;
+        border-right: 12px solid #00AC73;
+        border-bottom: 25px solid transparent;
+    }
+    
+    .ready:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 25px solid transparent;
+        border-left: 12px solid #00AC73;
+        border-bottom: 25px solid transparent;
+    }
+    
+    .ready b {
+        float: right;
+        margin-right: 2px;
+        color: #00AC73;
+        background: white;
+        height: 40px;
+        width: 40px;
+        border-radius: 40px;
+        line-height: 40px;
+        margin-top: 5px;
+    }
+    
+    .box {
+        background-image: radial-gradient(50% 100%, #FFFFFF 46%, #FDFAFA 89%, #E6EFE6 100%);
+        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.16);
+        margin-left: 85px;
+        justify-content: space-around;
+        width: calc(100% - 184px);
+        /* height: calc(100% - 375px); */
+        height: 68%;
+        margin-top: -27px;
+    }
+    
+    .item {
+        flex-direction: column;
+        width: 33%;
+    }
+    
+    .item img {
+        width: 80%;
+        /* height: 316px; */
+        height: calc(100% - 135px);
+        padding-left: 10%;
+    }
+    
+    .text {
+        align-items: center;
+        width: 80%;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.5);
+        letter-spacing: 0;
+        padding-top: 30px;
+        margin-bottom: 10px;
+        margin-top: 10px;
+        font-weight: bold;
+        justify-content: center;
+        padding-left: 10%;
+        word-break: break-all;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+
+</html>

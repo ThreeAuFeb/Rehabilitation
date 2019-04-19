@@ -1,0 +1,217 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>功能动作视频检测系统</title>
+    <link rel="stylesheet" href="../css/commen.css">
+    <link rel="stylesheet" href="../css/icon.css">
+    <script src="../js/utils.js"></script>
+</head>
+
+<body>
+    <div class="content">
+        <div class="flex head">
+            <div>
+                <p class="title">功能动作视频检测系统</p>
+            </div>
+            <div class="tools flex">
+                <span class="tool flex iconfont icon-setting-1-copy"></span>
+                <span class="help flex iconfont icon-qm"></span>
+            </div>
+        </div>
+
+        <div class="baseInfo flex">
+            <img src="../image/user.png" alt="加载失败">
+            <div class="box">
+                <p class="name">康伯巴奇·贝恩</p>
+                <p class="card">421022155485458965</p>
+                <div class="operate">
+                    <span class="iconfont icon-erweima"></span>
+                    <span class="iconfont icon-mulu"></span>
+                    <span class="iconfont icon-jiantou"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu flex">
+            <div class="staticCheck">
+                <div id="static" class="box checkBox">
+                    <div class="check">静态检测</div>
+                </div>
+                <div class="box" style="background: white;margin: 0 15px;padding: 15px 0;">
+                    <div class="box" style="background: #FFFFFF;box-shadow: 0 8px 16px -4px rgba(0,0,0,0.16);border-radius: 8px;height: 50px;line-height: 51px;font-size: 15px;color: #2F596A;font-weight: bold;margin: 0 30px;text-align: center;">
+                        <span class="report" onclick="creatWin('../html/staticResult.html')">查看报告</span>
+                        <span class="report">下载报告</span>
+                    </div>
+                </div>
+            </div>
+            <div class="dynamicCheck">
+                <div id="dynamic" class="box checkBox">
+                    <div class="check">动态检测</div>
+                </div>
+                <div class="box" style="background: white;margin: 0 15px;padding: 15px 0;">
+                    <div class="box" style="background: #FFFFFF;box-shadow: 0 8px 16px -4px rgba(0,0,0,0.16);border-radius: 8px;height: 50px;line-height: 51px;font-size: 15px;color: #2F596A;font-weight: bold;margin: 0 30px;text-align: center;">
+                        <span class="report notReport">查看报告</span>
+                        <span class="report notReport">下载报告</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footBG"></div>
+
+
+    </div>
+</body>
+<script>
+    window.onload = function() {
+        var dynamic = document.getElementById("dynamic")
+        var static = document.getElementById("static")
+        var detail = document.getElementsByClassName("report")
+        dynamic.onclick = function() {
+            creatWin('../html/info.html')
+        }
+        static.onclick = function() {
+            creatWin('../html/staticInfo.html')
+        }
+    }
+</script>
+<style>
+    .head {
+        justify-content: space-between;
+    }
+    
+    .head p {
+        font-size: 40px;
+        margin: 17px;
+    }
+    
+    .baseInfo {
+        align-items: center;
+        /* width: 100%; */
+        margin-left: 4%;
+        margin-top: 1%;
+    }
+    
+    .baseInfo img {
+        margin-right: -45px;
+        z-index: 99;
+        width: 90px;
+        height: 90px;
+        border: 3px solid #fff;
+        border-radius: 90px;
+        box-shadow: 0px 0px 8px 1px #CCEBF9;
+    }
+    
+    .baseInfo .box {
+        display: inline-block;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0px 0px 5px 0px #eee;
+        padding: 14px 30px 22px 65px;
+    }
+    
+    .name {
+        font-family: PingFangSC-Semibold;
+        font-size: 20px;
+        color: #2F596A;
+        letter-spacing: 0;
+        line-height: 32px;
+        font-weight: bold;
+        margin-bottom: -0.5em;
+    }
+    
+    .card {
+        font-family: PingFangSC-Semibold;
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.66);
+        letter-spacing: 0;
+        line-height: 14px;
+    }
+    
+    .operate span {
+        border: 1px solid rgba(247, 138, 138, 0.16);
+        border-radius: 2px;
+        padding: 4px 15px;
+        margin: -1px;
+        cursor: pointer;
+        color: #2F596A;
+    }
+    
+    .menu {
+        justify-content: center;
+        margin-top: -30px;
+    }
+    
+    .staticCheck,
+    .dynamicCheck {
+        width: 25%;
+        z-index: 1;
+    }
+    
+    .check {
+        background-image: linear-gradient(43deg, #0BD64B 0%, #19ED82 100%);
+        font-size: 34px;
+        color: #FFFFFF;
+        line-height: 43px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+        font-weight: bold;
+        padding-left: 18px;
+        height: 44px;
+        position: relative;
+    }
+    /* .menu .box {
+        cursor: pointer;
+    } */
+    
+    .check:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 22px solid transparent;
+        border-left: 18px solid #19ED82;
+        border-bottom: 22px solid transparent;
+    }
+    
+    .checkBox {
+        background: white;
+        height: 32%;
+        margin: 20px 15px;
+        padding-right: 50px;
+        padding-top: 25px;
+        cursor: pointer;
+    }
+    
+    .box .report:not(:last-child) {
+        border-right: 2px solid #2F596A;
+    }
+    
+    .report {
+        width: 100px;
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        cursor: pointer;
+    }
+    
+    .footBG {
+        opacity: 0.3;
+        background: #FAC45A;
+        height: 30%;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        box-shadow: 0px 0px 100px 80px #fac45a;
+    }
+    
+    .notReport {
+        opacity: 0.5;
+        cursor: auto;
+    }
+</style>
+
+</html>

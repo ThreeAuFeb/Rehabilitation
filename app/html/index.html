@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>功能动作视频检测系统</title>
+    <link rel="stylesheet" href="../css/commen.css">
+    <link rel="stylesheet" href="../css/icon.css">
+</head>
+
+<body>
+    <div id="content" class="content">
+        <div class="tools flex">
+            <span class="tool flex iconfont icon-setting-1-copy"></span>
+            <span class="help flex iconfont icon-qm"></span>
+        </div>
+        <div class="login">
+            <p class="title">功能动作视频检测系统</p>
+            <div class="iconLoading iconfont icon-jiazaizhong"></div>
+            <button class="signIn">进入</button>
+        </div>
+    </div>
+</body>
+<script>
+    window.onload = function() {
+        var contentDiv = document.getElementById("content");
+        contentDiv.onclick = function(ev) {
+            var ev = ev || window.event;　　　　
+            var target = ev.target || ev.srcElement;
+            if (target.nodeName.toLowerCase() == 'span') {　　　　　　　
+                alert('111');　　　　
+            } else if (target.nodeName.toLowerCase() == 'button') {
+                const ipc = require('electron').ipcRenderer
+                ipc.send('user_login')
+            }
+        }
+    }
+</script>
+<style>
+    .login {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .iconLoading {
+        color: #17E979;
+        font-size: 38px;
+    }
+    
+    .signIn {
+        background: #00AC73;
+        font-size: 48px;
+        color: #FFFFFF;
+        letter-spacing: 0;
+        text-align: center;
+        border: 0;
+        font-weight: bold;
+        width: 500px;
+        padding: 10px;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+</style>
+
+</html>

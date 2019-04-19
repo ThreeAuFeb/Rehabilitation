@@ -1,0 +1,787 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>功能动作视频检测系统</title>
+    <link rel="stylesheet" href="../css/commen.css">
+    <link rel="stylesheet" href="../css/icon.css">
+    <script>
+        if (typeof module === 'object') {
+            window.module = module;
+            module = undefined;
+        }
+    </script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/fileSaver.js"></script>
+    <script src="../js/opencv.js"></script>
+    <script src="../js/jQuery.js"></script>
+
+    <script>
+        if (window.module) module = window.module;
+    </script>
+    <!--    <script src="../js/jQuery.js"></script>-->
+</head>
+
+<body>
+    <div class="content">
+        <div class="flex head">
+            <div>
+                <p class="title">功能动作视频检测系统</p>
+            </div>
+            <div class="tools flex">
+                <span class="tool flex iconfont icon-setting-1-copy"></span>
+                <span class="help flex iconfont icon-qm"></span>
+                <span id="back" class="help flex" style="font-size: 18px;">后退</span>
+            </div>
+        </div>
+
+        <div class="dcjc">动态检测</div>
+
+        <div class="box flex">
+            <div style="width: 30%;margin-left:80px;">
+                <div class="vedioBox">
+                    <div class="sfdz">示范动作</div>
+                    <div class="vedio">
+                        <video id="video1" src="" muted width="100%" height="100%" style="object-fit: fill;"></video>
+                        <!-- <video src=""></video> -->
+                        <!-- 音频文件 -->
+                        <!-- <audio src=""></audio> -->
+                    </div>
+                    <div class="ready">准备 <b class="countDown">10</b> </div>
+                </div>
+                <div class="vedioBox">
+                    <div class="dzyl" style="margin-top: 15px;">动作要领</div>
+                    <p class="describe"></p>
+                </div>
+            </div>
+            <div class="imaging flex">
+                <div class="result">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>肩</th>
+                                <th>髋</th>
+                                <th>膝</th>
+                                <th>踝</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2°</td>
+                                <td>7°</td>
+                                <td>3°</td>
+                                <td>-3°</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- <div class="flex">
+                        <span>头部前伸</span><span>10°</span>
+                    </div> -->
+                </div>
+
+                <div id="resultImg" class="resultImg flex">
+                    <!-- <img src="../image/blue.png" alt="加载失败"> -->
+                </div>
+
+                <div class="actionVedio">
+                    <div class="bg"></div>
+                    <div class="action">
+
+                        <!--video用于显示媒体设备的视频流，自动播放-->
+                        <video id="video" autoplay width="100" height="100" style="width: 100%;margin-left: 10px;object-fit: fill;height: 100%;"></video>
+
+                        <!-- <span id="directionHint" class="directionHint flex iconfont"></span> -->
+
+                        <img class="markplace" src="../image/shadow_01.png" alt="加载失败">
+
+                        <!-- icon-right-double -->
+                        <!-- icon-dright -->
+                        <!--拍照按钮-->
+                        <!-- <div> -->
+                        <!-- <button id="capture">拍照</button> -->
+                        <!-- </div> -->
+                        <!--描绘video截图-->
+                        <!-- <canvas id="canvas" width="480" height="320"></canvas> -->
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footBG"></div>
+
+        <div class="resultMask">
+            <span><i class="iconLoading iconfont icon-jiazaizhong" style="font-size: 34px;margin: 0 10px;"></i>在生成报告页面</span>
+        </div>
+
+        <!-- 用于获取图片 -->
+        <canvas hidden="hidden" id="canvasOutput"></canvas>
+    </div>
+</body>
+<script>
+    window.onload = function() {
+        var video = document.getElementById('video');
+        var stopRecordCallback;
+        var recorderFile;
+        var mediaStream;
+        var mediaRecorder;
+
+        var MediaUtils = {
+            /**
+             * 获取用户媒体设备(处理兼容的问题)
+             * @param videoEnable {boolean} - 是否启用摄像头
+             * @param audioEnable {boolean} - 是否启用麦克风
+             * @param callback {Function} - 处理回调
+             */
+            getUserMedia: function(videoEnable, audioEnable, callback) {
+                navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia ||
+                    navigator.msGetUserMedia || window.getUserMedia;
+                var constraints = {
+                    video: videoEnable,
+                    audio: audioEnable
+                };
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+                        callback(false, stream);
+                    })['catch'](function(err) {
+                        callback(err);
+                    });
+                } else if (navigator.getUserMedia) {
+                    navigator.getUserMedia(constraints, function(stream) {
+                        callback(false, stream);
+                    }, function(err) {
+                        callback(err);
+                    });
+                } else {
+                    callback(new Error('Not support userMedia'));
+                }
+            },
+
+            /**
+             * 关闭媒体流
+             * @param stream {MediaStream} - 需要关闭的流
+             */
+            closeStream: function(stream) {
+                if (typeof stream.stop === 'function') {
+                    stream.stop();
+                } else {
+                    let trackList = [stream.getAudioTracks(), stream.getVideoTracks()];
+
+                    for (let i = 0; i < trackList.length; i++) {
+                        let tracks = trackList[i];
+                        if (tracks && tracks.length > 0) {
+                            for (let j = 0; j < tracks.length; j++) {
+                                let track = tracks[j];
+                                if (typeof track.stop === 'function') {
+                                    track.stop();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        openCamera();
+
+        function openCamera() {
+            var video = document.getElementById("video")
+            MediaUtils.getUserMedia(true, false, function(err, stream) {
+                if (err) {
+                    throw err;
+                } else {
+                    //通过 MediaRecorder 记录获取到的媒体流
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaStream = stream;
+                    var chunks = [],
+                        startTime = 0;
+                    video.srcObject = stream;
+                    video.play();
+
+                    // videosContainer.appendChild(video);
+                    mediaRecorder.ondataavailable = function(e) {
+                        //                        var file = new File([e], 'msr-' + (new Date).toISOString().replace(/:|\./g, '-') + '.mp4', {
+                        //                         type: 'video/mp4'
+                        //                        });
+                        //                        var formData = new FormData()
+                        //                        formData.append('file',file)
+                        //                        console.log(formData)
+                        mediaRecorder.blobs.push(e.data);
+                        chunks.push(e.data);
+                    };
+                    mediaRecorder.blobs = [];
+
+                    mediaRecorder.onstop = function(e) {
+                        recorderFile = new Blob(chunks, {
+                            'type': mediaRecorder.mimeType
+                        });
+                        chunks = [];
+                        if (null != stopRecordCallback) {
+                            stopRecordCallback();
+                        }
+                    };
+                }
+            });
+        }
+
+        var index = 0
+        var video1 = document.getElementById("video1")
+        var ready = document.getElementsByClassName("ready")
+        var countDown = document.getElementsByClassName("countDown")
+
+        var markplace = document.querySelector(".markplace")
+
+        var describe = document.getElementsByClassName("describe")
+
+        var processVideoTimeOut;
+
+        var canvasOutput = document.getElementById("canvasOutput")
+
+        var imgArr = []
+
+        var obj = [{
+            src: '../image/action_01.mp4',
+            image: '../image/action_01.jpg',
+            describe: '侧卧在瑜伽垫上，右腿伸直，微微抬起，脚尖朝下<br/>臀部外侧发力将右腿抬至最高点<br/>抬腿时大腿向胯的方向缩，而不是向远处伸'
+        }, {
+            src: '../image/action_02.mp4',
+            image: '../image/action_02.jpg',
+            describe: '自然站立，双手叉腰，双脚微微分开<br/>将一侧腿抬起，外展，再落回站立位；略作停顿后做另一侧腿的外展<br/>第二个循环时将一侧腿保持外展的状态下抬起，内收，再落回站立位；略作停顿后做另一侧腿的内收<br/>控制动作速度，上身保持稳定'
+        }, {
+            src: '../image/action_03.mp4',
+            image: '../image/action_03.jpg',
+            describe: '双脚约两倍肩宽，脚尖朝向斜前方<br/>蹲到大腿平行地面时膝盖要和脚尖方向一致<br/>上半身尽可能挺直，下蹲时臀部稍微向后坐<br/>双手交叉握置于胸口'
+        }]
+
+        // 动态替换完成图片
+        addImgResult(obj)
+
+        if (document.readyState == "complete") {
+            readyTran();
+        }
+
+        // 保存cavans图片
+        function savecavans(canvas) {
+            var image = new Image();
+            image.src = canvas.toDataURL("image/png");
+            return image;
+        }
+
+        function readyTran() {
+            // 初始化视频播放文件
+            video1.setAttribute("src", obj[index].src)
+            describe[0].innerHTML = obj[index].describe
+            index++
+
+            setTimeout(() => {
+                var interval = setInterval(() => {
+                    var count = countDown[0].innerHTML
+                    if (count > 0) {
+                        countDown[0].innerHTML = countDown[0].innerHTML - 1
+                    } else {
+                        markplace.style.display = "none";
+                        video1.play();
+
+                        // 录制视频
+                        console.log(index)
+                        mediaRecorder.start();
+
+
+
+
+
+                        //                        //获取视频帧
+                        // imgObj[index] = []
+                        let video = document.getElementById('video');
+                        console.log(cv)
+                        let src = new cv.Mat(video.width, video.height, cv.CV_8UC4)
+                        let dst = new cv.Mat(video.width, video.height, cv.CV_8UC1)
+                            // let src = new cv.Mat(video.width, video.height, cv.CV_8UC4);
+                            // let dst = new cv.Mat(video.width, video.height, cv.CV_8UC1);
+                        let cap = new cv.VideoCapture(video)
+                            // let cap = new cv.VideoCapture(video);
+
+                        console.log(mediaRecorder)
+
+                        const FPS = 30;
+
+                        function processVideo() {
+                            try {
+                                if (!mediaRecorder.stream.active) {
+                                    // clean and stop.
+                                    src.delete();
+                                    dst.delete();
+                                    return;
+                                }
+                                let begin = Date.now();
+                                // start processing.
+                                cap.read(src);
+                                //                                console.log(dst)
+                                cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+                                cv.imshow('canvasOutput', dst);
+
+
+                                //获取并保存图片
+                                // console.log(1)
+                                var type = 'png';
+                                // var canvas = document.getElementById("canvasOutput")
+                                // var imgData = canvas.toDataURL(type);
+                                // var _fixType = function(type) {
+                                //     type = type.toLowerCase().replace(/jpg/i, 'jpeg');
+                                //     var r = type.match(/png|jpeg|bmp|gif/)[0];
+                                //     return 'image/' + r;
+                                // };
+                                // imgData = imgData.replace(_fixType(type), 'image/octet-stream');
+                                // var saveFile = function(data, filename) {
+                                //     var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+                                //     save_link.href = data;
+                                //     save_link.download = filename;
+
+                                //     var event = document.createEvent('MouseEvents');
+                                //     event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                                //     save_link.dispatchEvent(event);
+                                // };
+
+                                // // 下载后的问题名
+                                // var filename = 'baidufe_' + (new Date()).getTime() + '.' + type;
+                                // // download
+                                // saveFile(imgData, filename);
+
+
+
+
+
+                                // var img = savecavans(document.getElementById("canvasOutput"))
+                                var img = savecavans(canvasOutput)
+                                    // imgArr.push(img)
+                                imgArr.push(dst)
+                                    // schedule the next one.
+                                let delay = 1000 / FPS - (Date.now() - begin);
+                                processVideoTimeOut = setTimeout(processVideo, delay);
+                                //                                setTimeout(processVideo, delay);
+                            } catch (err) {
+                                console.log(err)
+                                    //                                utils.printError(err);
+                            }
+                        };
+
+                        // schedule the first one.
+                        setTimeout(processVideo, 0);
+
+
+
+
+
+
+
+                        document.querySelector(".ready").style.display = "none";
+                        clearInterval(interval)
+                    }
+                }, 1000)
+            }, 1000);
+        }
+
+
+        function addImgResult(obj) {
+            var imgHtml = ""
+            for (var index in obj) {
+                var para = document.createElement("img"); //创建新的<p> 元素
+                console.log(obj[index].image)
+                para.setAttribute("src", obj[index].image)
+                para.setAttribute("id", index)
+                para.setAttribute("alt", "加载失败")
+                para.setAttribute("class", "notComplete")
+                    // 插入到.resultImg标签中
+                document.getElementById("resultImg").appendChild(para)
+            }
+        }
+
+        // 停止录制
+
+        function stopRecord(callback) {
+            stopRecordCallback = callback;
+            // 终止录制器
+            mediaRecorder.stop();
+        }
+        // 监听video播放结束事件
+        var actionId = 0;
+        video1.onended = function() {
+            actionId++
+            clearTimeout(processVideoTimeOut)
+                // console.log(imgArr)
+            stopRecord(function() {
+                // 視頻流file
+                //命名规则inspectType_code_inspectId_actionId_time：检测类型_患者id_检查项目id_动作id_时间
+                var file = new File([recorderFile], '1_1_1_' + actionId + '_' + (new Date).toISOString().replace(/:|\./g, '-') + '.mp4', {
+                    type: 'video/mp4'
+                });
+
+                // var formData = new FormData();
+                // formData.append('file', file)
+                //                console.log(formData)
+
+
+                // $.ajax({
+                //     cache: false, //不保留缓存数据
+                //     type: "POST", //为post请求
+                //     url: "http://192.168.70.105:8081/upload", 
+                //     data: formData, //将该表单序列化
+                //     processData: false, //防止将数据自动转换为字符串
+                //     async: false, //设置成true，这标志着在请求开始后，其他代码依然能够执行。如果把这个选项设置成false，这意味着所有的请求都不再是异步的了，这也会导致浏览器被锁死
+                //     error: function(request) { //请求失败之后的操作
+                //         return;
+                //     },
+                //     success: function(data) { //请求成功之后的操作
+                //         console.log(data);
+                //     }
+                // });
+
+                var formData = new FormData();
+                var xhr = new XMLHttpRequest();
+                formData.enctype = "multipart/form-data";
+                formData.append('file', file)
+                for (var i in imgArr) {
+                    console.log(imgArr[i])
+                    formData.append('file', imgArr[i])
+                }
+                // formData.append('file', imgObj)
+                formData.append('code', 111)
+                formData.append('type', 222)
+                xhr.open("post", "http://192.168.70.105:8081/upload", true);
+                xhr.send(formData);
+
+                imgArr = []
+
+                // var formData = new FormData();
+                // var xhr = new XMLHttpRequest();
+                // formData.enctype = "multipart/form-data";
+                // formData.append('file', file)
+                // xhr.open("post", "http://192.168.70.105:8081/upload", true);
+                // xhr.send(formData);
+
+
+                //                $.post("http://192.168.70.81:8899/upload",
+                //                    {
+                //                        data:file
+                //                    },
+                //                        function(data,status){
+                //                        console.log(data)
+                //                    });
+
+
+                //转换为MP4格式文件保存在电脑中
+                //                saveAs(file);
+            });
+
+            document.getElementById(index - 1).classList.remove("notComplete")
+            if (index < obj.length) {
+
+                markplace.style.display = "block"
+                markplace.setAttribute("src", "../image/shadow_0" + (index + 1) + ".png")
+
+                document.querySelector(".ready").style.display = "";
+                countDown[0].innerHTML = 10
+                readyTran()
+            } else {
+                document.querySelector(".resultMask").style.display = "block"
+                setTimeout(function() {
+                    creatWin('../html/dynamicResult.html')
+                }, 3000)
+                console.log("需要跳转到报告页面")
+            }
+        }
+
+        // 后退
+        var back = document.getElementById("back")
+        back.addEventListener("click", function() {
+            creatWin('../html/subHome.html')
+        })
+    }
+</script>
+<style>
+    .resultMask {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        z-index: 20;
+        background: rgba(0, 0, 0, .58);
+        display: none;
+    }
+    
+    .resultMask span {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -50px;
+        margin-top: -25px;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+        font-size: 28px;
+    }
+    
+    .markplace {
+        position: absolute;
+        top: 133px;
+        height: 80%;
+        width: calc(70% - 150px);
+        margin-left: 10px;
+        opacity: 0.7;
+    }
+    
+    .resultImg {
+        position: absolute;
+        right: 40px;
+        padding-bottom: 45px;
+        flex-direction: column-reverse;
+    }
+    
+    .resultImg img {
+        width: 100px;
+        height: 100px;
+        /* padding: 10px 0 5px 20px; */
+        background: white;
+        border: 3px solid #00AC73;
+        box-shadow: 0 4px 8px -4px;
+        margin-bottom: 5px;
+        margin-right: 5px;
+    }
+    
+    .notComplete {
+        border: 0 !important;
+        color: #CCEBF9;
+        opacity: 0.6;
+    }
+    
+    .head {
+        justify-content: space-between;
+    }
+    
+    .head p {
+        font-size: 40px;
+        margin: 17px;
+    }
+    
+    .dcjc {
+        background-image: linear-gradient(43deg, #0BD64B 0%, #19ED82 100%);
+        font-size: 36px;
+        color: #FFFFFF;
+        line-height: 43px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+        margin-top: 8px;
+        font-weight: bold;
+        padding-left: 18px;
+        width: 336px;
+        margin-left: 80px;
+        height: 44px;
+        position: relative;
+    }
+    
+    .dcjc:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 22px solid transparent;
+        border-left: 18px solid #19ED82;
+        border-bottom: 22px solid transparent;
+    }
+    
+    .sfdz,
+    .dzyl {
+        background: #4AE99E;
+        font-size: 20px;
+        color: #FFFFFF;
+        line-height: 34px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+        margin-top: 25px;
+        font-weight: bold;
+        /* padding-left: 18px; */
+        width: 220px;
+        /* margin-left: 80px; */
+        height: 34px;
+        position: relative;
+        text-align: center;
+    }
+    
+    .sfdz:after,
+    .dzyl:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 17px solid transparent;
+        border-left: 12px solid #19ED82;
+        border-bottom: 17px solid transparent;
+    }
+    
+    .ready {
+        background: #00AC73;
+        font-size: 36px;
+        color: #FFFFFF;
+        line-height: 50px;
+        font-weight: bold;
+        width: 204px;
+        height: 50px;
+        text-align: center;
+        margin-top: -15%;
+        margin-left: 9%;
+        position: absolute;
+    }
+    
+    .vedioBox p {
+        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.16);
+        border-radius: 2px;
+        background: white;
+        margin-left: 5px;
+        margin-top: -28px;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.56);
+        letter-spacing: 0;
+        font-weight: bold;
+        padding: 35px 15px 10px 15px;
+    }
+    
+    .ready:before {
+        content: "";
+        position: absolute;
+        right: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 25px solid transparent;
+        border-right: 12px solid #00AC73;
+        border-bottom: 25px solid transparent;
+    }
+    
+    .ready:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 25px solid transparent;
+        border-left: 12px solid #00AC73;
+        border-bottom: 25px solid transparent;
+    }
+    
+    .ready b {
+        float: right;
+        margin-right: 2px;
+        color: #00AC73;
+        background: white;
+        height: 40px;
+        width: 40px;
+        border-radius: 40px;
+        line-height: 40px;
+        margin-top: 5px;
+    }
+    
+    .vedio {
+        background: white;
+        height: 50%;
+        /* width: 100%; */
+        margin-left: 5px;
+        margin-top: -28px;
+        background-image: radial-gradient(50% 100%, #FFFFFF 46%, #FDFAFA 89%, #E6EFE6 100%);
+        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.16);
+    }
+    
+    .imaging {
+        align-items: flex-end;
+        margin-left: 20px;
+        width: calc(70% - 150px);
+    }
+    
+    .result {
+        position: absolute;
+        background: #FFFFFF;
+        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.16);
+        border-radius: 2px;
+        width: 13%;
+        /* margin-bottom: 15px; */
+        right: 40px;
+    }
+    
+    table {
+        width: 100%;
+    }
+    
+    thead {
+        background: #EFFFF6;
+        border-radius: 2px;
+    }
+    
+    th {
+        font-size: 15px;
+        color: #00AC73;
+    }
+    
+    td {
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.56);
+        text-align: center;
+        font-weight: bold;
+    }
+    /* .result .flex {
+        justify-content: space-between;
+        padding: 10px 20px 0 20px;
+    }
+    
+    .result .flex span:first-child {
+        font-size: 13px;
+        color: #00AC73;
+        font-weight: bold;
+    }
+    
+    .result .flex span:last-child {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.56);
+    }
+    
+    .result .flex:last-child {
+        padding-bottom: 10px;
+    } */
+    
+    .actionVedio {
+        /* width: 78%; */
+        width: 100%;
+        height: 80%;
+    }
+    
+    .action {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .footBG {
+        opacity: 0.3;
+        background: #FAC45A;
+        height: 30%;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        box-shadow: 0px 0px 100px 80px #fac45a;
+    }
+    /* .directionHint {
+        display: none;
+        font-size: 60px;
+        color: #FF4501;
+        position: absolute;
+        top: 50%;
+        right: 25%;
+        font-weight: bold;
+    } */
+    
+    .icon-right-double {
+        flex-direction: row-reverse;
+    }
+</style>
+
+</html>

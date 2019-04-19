@@ -1,0 +1,416 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>功能动作视频检测系统</title>
+    <link rel="stylesheet" href="../css/commen.css">
+    <link rel="stylesheet" href="../css/icon.css">
+    <script src="../js/utils.js"></script>
+</head>
+
+<body>
+    <div class="content">
+        <div class="flex head">
+            <div>
+                <p class="title">功能动作视频检测系统</p>
+            </div>
+            <div class="tools flex">
+                <span class="tool flex iconfont icon-setting-1-copy"></span>
+                <span class="help flex iconfont icon-qm"></span>
+                <span id="back" class="help flex" style="font-size: 18px;">后退</span>
+            </div>
+        </div>
+
+        <div class="dzsm">检测结果</div>
+        <div class="box flex">
+            <div class="item flex">
+                <!-- <span class="text">站立在检测区域内，双脚与肩同宽。</span> -->
+                <img src="../image/static_report_01.jpg" alt="加载失败">
+            </div>
+            <div class="item flex">
+                <!-- <span class="text">双手握杆举过头顶，肘关节呈90°，保持手、肘、肩、躯干、和腿呈一条直线。</span> -->
+                <!-- <img src="../image/home.png" alt="加载失败"> -->
+                <div class="quota">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>指标</th>
+                                <th>检测结果</th>
+                                <th>正常范围</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appendTr">
+                            <!-- <tr>
+                                <td>头部前伸</td>
+                                <td>10°</td>
+                                <td>10°</td>
+                            </tr> -->
+                            <!-- <tr>
+                                <td>头部倾斜</td>
+                                <td>25°</td>
+                                <td>25°</td>
+                            </tr> -->
+                            <!-- <tr>
+                                <td>高低肩</td>
+                                <td>10°</td>
+                                <td>10°</td>
+                            </tr> -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="item flex">
+                <!-- <span class="text">维持上身姿势不变、缓慢下蹲。下蹲时，膝盖和脚对齐，避免内翻或外翻。</span> -->
+                <!-- <img src="../image/home.png" alt="加载失败"> -->
+                <div class="xtjy">系统建议</div>
+                <div class="proposal">
+                    <span>翻身训练：充分利用没有瘫痪的肌肉，尤其是上肢和背部的肌肉</span>
+                    <span>上肢训练：无障碍的上肢，可举哑铃、拉拉簧、徒手操等方法训练肌肉力量</span>
+                    <span>下肢训练：髋关节和膝关节易发生屈曲畸形，每天最大幅度地活动髋部和膝关节</span>
+                    <span>腹部训练：如卧床-抬头-起坐，或腹部平放沙袋，反复收缩放松腹肌。</span>
+                    <span>起坐训练：靠坐、扶坐、床边坐、床与轮椅的转换等</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ready">完成</div>
+        <div class="downLoad" style="margin-top: 30px;border: 1px solid #00ac73;">下载报告</div>
+    </div>
+</body>
+<script>
+    window.onload = function() {
+        //获取指定区间范围随机数，包括lowerValue和upperValue
+        function randomFrom(lowerValue, upperValue) {
+            return Math.floor(Math.random() * (upperValue - lowerValue + 1) + lowerValue);
+        }
+        // 檢測結果初始值
+        var obj = [{
+            name: '头部前伸',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '头部倾斜',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '高低肩',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '躯干旋转',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '身体驼背',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '盆骨倾斜',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '盆骨侧移',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '左侧膝关节屈曲',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '右侧膝关节屈曲',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '左侧膝关节过伸',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }, {
+            name: '右侧膝关节过伸',
+            result: randomFrom(-10, 10),
+            range: randomFrom(0, 10)
+        }]
+
+        for (var index in obj) {
+            var trHtml = document.createElement("tr")
+            var tdHtml = document.createElement("td")
+            tdHtml.innerHTML = obj[index].name + '°'
+            var tdHtml1 = document.createElement("td")
+            tdHtml1.innerHTML = obj[index].result + '°'
+            if (obj[index].result < obj[index].range) {
+                tdHtml1.setAttribute("class", "outsideRange")
+            }
+            var tdHtml2 = document.createElement("td")
+            tdHtml2.innerHTML = obj[index].range + '°'
+            trHtml.appendChild(tdHtml)
+            trHtml.appendChild(tdHtml1)
+            trHtml.appendChild(tdHtml2)
+                // console.log(trHtml)
+            var tbody = document.getElementById("appendTr")
+            tbody.appendChild(trHtml)
+        }
+
+        // 后退
+        var back = document.getElementById("back")
+        back.addEventListener("click", function() {
+            creatWin('../html/subHome.html')
+        })
+    }
+</script>
+<style>
+    .head {
+        justify-content: space-between;
+    }
+    
+    .head p {
+        font-size: 40px;
+        margin: 17px;
+    }
+    
+    .dzsm {
+        background: #4AE99E;
+        font-size: 25px;
+        color: #FFFFFF;
+        line-height: 40px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+        margin-top: 25px;
+        font-weight: bold;
+        width: 310px;
+        margin-left: 80px;
+        height: 40px;
+        position: relative;
+        text-align: center;
+    }
+    
+    .dzsm:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 20px solid transparent;
+        border-left: 12px solid #19ED82;
+        border-bottom: 20px solid transparent;
+    }
+    
+    .xtjy {
+        background: #4AE99E;
+        font-size: 18px;
+        color: #FFFFFF;
+        line-height: 30px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+        margin-top: 45px;
+        font-weight: bold;
+        width: 160px;
+        height: 30px;
+        position: relative;
+        padding-left: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .xtjy:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 15px solid transparent;
+        border-left: 10px solid #19ED82;
+        border-bottom: 15px solid transparent;
+    }
+    
+    .ready {
+        background: #00AC73;
+        font-size: 36px;
+        color: #FFFFFF;
+        line-height: 50px;
+        /* text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16); */
+        margin-top: -25px;
+        font-weight: bold;
+        /* padding-left: 18px; */
+        width: 204px;
+        /* margin-left: 80px; */
+        height: 50px;
+        position: relative;
+        /* float: right; */
+        margin-right: 100px;
+        text-align: center;
+        position: absolute;
+        right: 0;
+        cursor: pointer;
+    }
+    
+    .ready:before {
+        content: "";
+        position: absolute;
+        right: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 25px solid transparent;
+        border-right: 12px solid #00AC73;
+        border-bottom: 25px solid transparent;
+    }
+    
+    .ready:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 25px solid transparent;
+        border-left: 12px solid #00AC73;
+        border-bottom: 25px solid transparent;
+    }
+    
+    .downLoad {
+        background: #00AC73;
+        font-size: 36px;
+        color: #FFFFFF;
+        line-height: 50px;
+        /* text-shadow: 0 2px 4px rgba(0, 0, 0, 0.16); */
+        margin-top: -25px;
+        font-weight: bold;
+        /* padding-left: 18px; */
+        width: 204px;
+        /* margin-left: 80px; */
+        height: 50px;
+        position: relative;
+        /* float: right; */
+        margin-right: 100px;
+        text-align: center;
+        position: absolute;
+        right: 0;
+        cursor: pointer;
+    }
+    
+    .downLoad:before {
+        content: "";
+        position: absolute;
+        right: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 25px solid transparent;
+        border-right: 12px solid #00AC73;
+        border-bottom: 25px solid transparent;
+    }
+    
+    .downLoad:after {
+        content: "";
+        position: absolute;
+        left: 100%;
+        height: 0px;
+        width: 0;
+        border-top: 25px solid transparent;
+        border-left: 12px solid #00AC73;
+        border-bottom: 25px solid transparent;
+    }
+    
+    .ready b {
+        float: right;
+        margin-right: 2px;
+        color: #00AC73;
+        background: white;
+        height: 40px;
+        width: 40px;
+        border-radius: 40px;
+        line-height: 40px;
+        margin-top: 5px;
+    }
+    
+    .box {
+        background-image: radial-gradient(50% 100%, #FFFFFF 46%, #FDFAFA 89%, #E6EFE6 100%);
+        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.16);
+        margin-left: 85px;
+        justify-content: space-around;
+        width: calc(100% - 184px);
+        /* height: calc(100% - 375px); */
+        height: 60%;
+        margin-top: -27px;
+    }
+    
+    .item {
+        flex-direction: column;
+        width: 33%;
+    }
+    
+    .item img {
+        width: 80%;
+        /* height: 316px; */
+        height: calc(100% - 125px);
+        padding-left: 5%;
+        margin-top: 62px;
+    }
+    
+    .text {
+        display: flex;
+        align-items: center;
+        width: 80%;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.5);
+        height: 50px;
+        letter-spacing: 0;
+        padding-top: 40px;
+        font-weight: bold;
+        justify-content: center;
+        padding-left: 10%;
+    }
+    
+    .quota {
+        width: 100%;
+        height: calc(100% - 90px);
+        margin-top: 45px;
+        margin-left: -10%;
+        border: 1px solid rgba(0, 0, 0, 0.16);
+        border-radius: 2px;
+        overflow: auto;
+    }
+    
+    table {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    th {
+        background: rgba(74, 233, 158, .4);
+        font-family: PingFangSC-Semibold;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.64);
+        letter-spacing: 0;
+        text-align: center;
+        padding: 5px 0;
+    }
+    
+    td {
+        font-size: 14px;
+        letter-spacing: 0;
+        text-align: center;
+        padding: 5px 0;
+    }
+    
+    tr {
+        font-weight: bold;
+    }
+    
+    tr td:first-child {
+        color: #00AC73;
+    }
+    
+    tr td:last-child {
+        color: rgba(14, 115, 9, 0.56);
+        /* font-weight: bold; */
+    }
+    
+    .outsideRange {
+        color: rgba(225, 17, 17, 0.56);
+    }
+    
+    .proposal span {
+        display: block;
+        margin-top: 5px;
+        font-size: 15px;
+        color: rgba(0, 0, 0, 0.56);
+    }
+</style>
+
+</html>
