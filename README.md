@@ -9,6 +9,8 @@
 * npm install electron-packager --save-dev  //安装打包工具
 * npm start  //启动项目
 * npm run-script packager  //打包
+###### 打包之前需要在根目录下创建outApp文件夹，打包的文件自动下载在此目录当中
+
 #### 效果图
 ![](https://github.com/ThreeAuFeb/Rehabilitation/blob/master/1.jpg)
 ![](https://github.com/ThreeAuFeb/Rehabilitation/blob/master/2.jpg)
